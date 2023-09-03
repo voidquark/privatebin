@@ -1,0 +1,13 @@
+galaxy_info:
+  author: voidquark
+  description: Manage PrivateBin Application
+  company: VoidQuark
+
+  license: MIT
+
+  min_ansible_version: 2.1
+
+  platforms:
+    - name: EL
+      versions:
+        - "9"
