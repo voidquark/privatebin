@@ -1,0 +1,108 @@
+---
+# tasks file for privatebin
+
+- name: Create the privatebin group
+  ansible.builtin.group:
+    name: "{{ privatebin_group  }}"
+    system: false
+    state: present
+
+- name: Create the privatebin user
+  ansible.builtin.user:
+    name: "{{ privatebin_user }}"
+    group: "{{ privatebin_group }}"
+    shell: "/bin/bash"
+    system: false
+    create_home: true
+    state: present
+  register: __user_info
+
+- name: Create privatebin dir
+  ansible.builtin.file:
+    path: "{{ privatebin_dir }}"
+    state: directory
+    mode: "0550"
+    owner: "{{ privatebin_user }}"
+    group: "{{ privatebin_group }}"
+  when: privatebin_dir is defined
+
+- name: Create privatebin data dir
+  ansible.builtin.file:
+    path: "{{ privatebin_data_dir }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ privatebin_user }}"
+    group: "{{ privatebin_group }}"
+  when: privatebin_data_dir is defined
+
+- name: Template privatebin config
+  ansible.builtin.copy:
+    content: "{{ privatebin_conf_raw }}"
+    dest: "{{ privatebin_dir }}/conf.php"
+    owner: "{{ privatebin_user }}"
+    group: "{{ privatebin_group }}"
+    mode: "0644"
+  notify:
+    - restart privatebin
+
+- name: Template custom raw config
+  ansible.builtin.copy:
+    content: "{{ custom_conf.raw_content }}"
+    dest: "{{ privatebin_dir }}/{{ custom_conf.filename }}"
+    owner: "{{ privatebin_user }}"
+    group: "{{ privatebin_group }}"
+    mode: "0644"
+  loop: "{{ privatebin_custom_conf }}"
+  loop_control:
+    loop_var: custom_conf
+  when: privatebin_custom_conf is defined
+  notify:
+    - restart privatebin
+
+- name: Check if privatebin user is lingering
+  ansible.builtin.stat:
+    path: "/var/lib/systemd/linger/{{ privatebin_user }}"
+  register: __user_lingering
+
+- name: Enable lingering for user
+  ansible.builtin.command: "loginctl enable-linger {{ privatebin_user }}"
+  when: not __user_lingering.stat.exists
+
+- name: Create privatebin container
+  containers.podman.podman_container:
+    name: "{{ privatebin_container_name }}"
+    image: "{{ privatebin_container_image }}"
+    state: "created"
+    image_strict: true
+    rm: true
+    publish: "{{ privatebin_container_publish }}"
+    detach: true
+    privileged: false
+    read_only: true
+    tty: false
+    user: "{{ __user_info.uid }}:{{ __user_info.group }}"
+    userns: "keep-id"
+    volume: "{{ privatebin_container_volumes }}"
+  become_user: "{{ privatebin_user }}"
+  notify:
+    - restart privatebin
+
+- name: Generate systemd unit file for privatebin container
+  containers.podman.podman_generate_systemd:
+    dest: "/home/{{ privatebin_user }}/.config/systemd/user"
+    name: "{{ privatebin_container_name }}"
+    new: true
+    no_header: true
+    restart_sec: 10
+    restart_policy: "always"
+  become_user: "{{ privatebin_user }}"
+  notify:
+    - restart privatebin
+
+- name: Enable firewalld rule to expose privatebin tcp port
+  ansible.posix.firewalld:
+    immediate: true
+    permanent: true
+    port: "{{ privatebin_firewalld_expose_port }}/tcp"
+    state: enabled
+  when: privatebin_firewalld_expose_port is defined
