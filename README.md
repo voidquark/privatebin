@@ -8,7 +8,7 @@ The Ansible PrivateBin Role empowers you to effortlessly deploy and manage a sec
 - **📦 Out-of-the-box Deployment**: Get Privatebin up and running quickly with default configurations that work seamlessly with Red Hat family systems. See [Quick Start](#quick-start) for easy setup.
 - **🧩 Flexible Configuration**: Easily customize Privatebin configuration to match your specific requirements.
 
-📢 **[Check the blog post](https://voidquark.com)** 📝 **Comming soon**
+📢 **[Check the blog post](https://voidquark.com)** 📝 **Coming soon**
 
 ## Table of Content
 
