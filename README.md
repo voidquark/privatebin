@@ -1,5 +1,7 @@
 # PrivateBin - Ansible Role
 
+[![License](https://img.shields.io/github/license/voidquark/privatebin)](LICENSE)
+
 The Ansible PrivateBin Role empowers you to effortlessly deploy and manage a secure [PrivateBin](https://github.com/PrivateBin/PrivateBin) service using a rootless Podman container.
 
 **🔑 Key Features**
