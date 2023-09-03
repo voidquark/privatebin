@@ -1,0 +1,13 @@
+---
+# handlers file for privatebin
+
+- name: restart privatebin
+  ansible.builtin.systemd:
+    name: "container-{{ privatebin_container_name }}.service"
+    state: "restarted"
+    scope: "user"
+    daemon_reload: true
+    enabled: true
+  become_user: "{{ privatebin_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ __user_info.uid }}"
