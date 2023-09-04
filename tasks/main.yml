@@ -80,6 +80,7 @@
     privileged: false
     read_only: true
     tty: false
+    log_driver: "journald"
     user: "{{ __user_info.uid }}:{{ __user_info.group }}"
     userns: "keep-id"
     volume: "{{ privatebin_container_volumes }}"
