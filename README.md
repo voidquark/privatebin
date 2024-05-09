@@ -85,7 +85,7 @@ privatebin_conf_raw: |
   burnafterreadingselected = false
   defaultformatter = "plaintext"
   sizelimit = 10485760
-  template = "bootstrap"
+  template = "bootstrap5"
   languageselection = false
 
   [expire]
