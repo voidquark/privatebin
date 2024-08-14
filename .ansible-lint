@@ -1,0 +1,4 @@
+skip_list:
+  - 'yaml'
+  - 'partial-become'
+  - 'no-changed-when'

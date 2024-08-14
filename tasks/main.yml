@@ -3,7 +3,7 @@
 
 - name: Create the privatebin group
   ansible.builtin.group:
-    name: "{{ privatebin_group  }}"
+    name: "{{ privatebin_group }}"
     system: false
     state: present
 
